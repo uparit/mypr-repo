@@ -48,6 +48,7 @@ jobs:
             do
               echo "$PR_ID" >> pull_request_id.txt
             done
+            git pull
             git add pull_request_id.txt
             git commit -m "Add pull request IDs file"
             git push

@@ -1,0 +1,69 @@
+name: Create PR IDs File
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name as needed
+
+jobs:
+  create_pr_ids:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "shivamnaik6574@gmail.com"
+          git config --global user.name "shivamnaik6574"
+      - name: Get Latest PR Numbers
+        id: get_pr_numbers
+        run: |
+          OWNER="shivamnaik6574"
+          REPO="auto-merge"
+          PR_NUMBERS=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+            "https://github.com/shivamnaik6574/auto-merge/commits/main/" | \
+            jq -r '.[].number' | head -n 6)
+          echo "::set-output name=pr_numbers::$PR_NUMBERS"
+      - name: Create PR IDs File
+        run: |
+          if [ -e pull_request_id.txt ]; then
+            echo "File pull_request_id.txt already exists. No further action required."
+            echo "::set-output name=action_required::false"
+          else
+            echo "Everything is up to date. No further action required."
+            echo "::set-output name=action_required::true"
+            PR_NUMBERS="${{ steps.get_pr_numbers.outputs.pr_numbers }}"
+            PR_IDS=( 2dcbbc80d05f56f560ca895de33ecf966c862ebd b25fa0d9ce1a26ebad2b8c4a6eb72abeb64c594c )
+            for PR_NUMBER in $PR_NUMBERS
+            do
+              PR_ID=$(curl -s -H "Authorization: token ${{ secrets.TOKEN }}" \
+                "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER" | \
+                jq -r '.id')
+              PR_IDS+=("$PR_ID")
+            done
+            echo "Pull Request IDs:" > pull_request_id.txt
+            for PR_ID in "${PR_IDS[@]}"
+            do
+              echo "$PR_ID" >> pull_request_id.txt
+            done
+            git add pull_request_id.txt
+            git commit -m "Add pull request IDs file"
+            git push
+          fi
+      - name: Display PR IDs File
+        run: |
+          cat pull_request_id.txt
+      - name: Display Branch Status
+        run: |
+          git fetch origin
+          BRANCH_STATUS=$(git status -uno)
+          echo "$BRANCH_STATUS"
+          if [[ "$BRANCH_STATUS" == *"Your branch is up to date with 'origin/main'."* ]]; then
+            echo "Branch is up to date. Further tasks can be executed."
+            # Add further tasks here
+          else
+            echo "Branch is not up to date. Ending the workflow."
+            exit 0  # or any other suitable action
+          fi

@@ -25,7 +25,7 @@ jobs:
           REPO="auto-merge"
           PR_NUMBERS=$(curl -s -H "Accept: application/vnd.github.v3+json" \
             "https://github.com/shivamnaik6574/auto-merge/commits/main/" | \
-            jq -r '.[].number' | head -n 6)
+            jq -r '.[].number' | head -n 100)
           echo "::set-output name=pr_numbers::$PR_NUMBERS"
 
       - name: Create PR IDs Bundle
@@ -40,24 +40,23 @@ jobs:
             PR_IDS+=("$PR_ID")
           done
 
-          COMMIT_IDS_BUNDLE=$(git log --pretty=format:'%h' -n 5)
+          COMMIT_IDS_BUNDLE=$(git log --pretty=format:'%h' -n 100)
+          
+          EXISTING_IDS=$(cat pull_request_id.txt)
 
-          for COMMIT_ID in $COMMIT_IDS_BUNDLE
-          do
-            PR_IDS+=("$COMMIT_ID")
-          done
-
+          ALL_IDS=("${PR_IDS[@]}" "${COMMIT_IDS_BUNDLE[@]}")
+          
           echo "Pull Request IDs and Commit IDs Bundle:" > pull_request_id.txt
-          for ID in "${PR_IDS[@]}"
+          for ID in "${ALL_IDS[@]}"
           do
             echo "$ID" >> pull_request_id.txt
           done
 
           git pull
           git add pull_request_id.txt
-          git commit -m "Add pull request and commit IDs bundle"
+          git commit -m "Update pull request and commit IDs bundle"
           git push
-          
+
       - name: Display PR IDs and Commit IDs Bundle
         run: |
           cat pull_request_id.txt

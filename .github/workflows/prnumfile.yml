@@ -41,21 +41,17 @@ jobs:
           done
 
           COMMIT_IDS_BUNDLE=$(git log --pretty=format:'%h' -n 100)
-          
-          EXISTING_IDS=$(cat pull_request_id.txt)
 
-          ALL_IDS=("${PR_IDS[@]}" "${COMMIT_IDS_BUNDLE[@]}")
-          
+          ALL_IDS=($(cat pull_request_id.txt) "${PR_IDS[@]}" "${COMMIT_IDS_BUNDLE[@]}")
+
           echo "Pull Request IDs and Commit IDs Bundle:" > pull_request_id.txt
           for ID in "${ALL_IDS[@]}"
           do
             echo "$ID" >> pull_request_id.txt
           done
 
-          # Ensure you have the latest changes
           git pull origin main
 
-          # Commit and push the changes
           git add pull_request_id.txt
           git commit -m "Update pull request and commit IDs bundle"
           git push origin main

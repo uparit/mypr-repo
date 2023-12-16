@@ -52,10 +52,13 @@ jobs:
             echo "$ID" >> pull_request_id.txt
           done
 
-          git pull
+          # Ensure you have the latest changes
+          git pull origin main
+
+          # Commit and push the changes
           git add pull_request_id.txt
           git commit -m "Update pull request and commit IDs bundle"
-          git push
+          git push origin main
 
       - name: Display PR IDs and Commit IDs Bundle
         run: |

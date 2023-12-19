@@ -60,5 +60,5 @@ jobs:
 
       - name: Display PR IDs and Commit IDs Bundle
         run: |
-          echo "Pull Request IDs and Commit TDs Bundle:"
-          cat pull_request_id.txt
+          echo "Pull Request IDs and Commit IDs Bundle:"
+          cat pull_request_id.txt | tr '\n' ' '

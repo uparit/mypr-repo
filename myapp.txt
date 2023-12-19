@@ -1,3 +1,4 @@
 #!/bin/bash
 
 echo "hello world from shivam"
+echo "good afternoon"

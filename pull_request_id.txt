@@ -9,12 +9,6 @@ Bundle:
 82e1948
 9069adf
 97a2b3d
-Bundle:
-Commit
-IDs
-Pull
-Request
-and
 b3e9a3c
 c22e8d7
 d3bfae5

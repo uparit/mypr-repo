@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - auto-pr-branch
 
 jobs:
   create_prs:

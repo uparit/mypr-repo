@@ -46,7 +46,7 @@ jobs:
 
           ALL_IDS=($(echo "${ALL_IDS[@]}" | tr ' ' '\n' | sort -u))
 
-          echo "Pull Request IDs and Commit IDs Bundle:" > pull_request_id.txt
+          echo "Bundle:" > pull_request_id.txt
           for ID in "${ALL_IDS[@]}"
           do
             echo "$ID" >> pull_request_id.txt
@@ -60,5 +60,4 @@ jobs:
 
       - name: Display PR IDs and Commit IDs Bundle
         run: |
-          echo "Pull Request IDs and Commit IDs Bundle:"
           cat pull_request_id.txt | tr '\n' ' '

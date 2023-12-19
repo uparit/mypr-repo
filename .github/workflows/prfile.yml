@@ -1,36 +1,47 @@
-name: Demo to create automatic PR
+name: Create PRs for Users' Commit IDs
 
 on:
   push:
     branches:
+      - main
       - auto-pr-branch
 
 jobs:
-  updateAuthor:
+  create_prs:
     runs-on: ubuntu-latest
+
     steps:
-     -  name: checking out code
+      - name: Checkout code
         uses: actions/checkout@v2
 
-     -  name: extract git commit data
+      - name: Set up Git
         run: |
-          echo "Extracting Git commit data..."
-          git log -1
-          git log
-          echo "Extraction complete."
-     
-     -  name: Update author information
-        run: echo ${{ env.shivamnaik6574 }} > AUTHOR
+          git config --global user.email "shivamnaik6574@gmail.com"
+          git config --global user.name "shivamnaik6574"
 
-     -  name: Raise PR
-        uses: peter-evans/create-pull-request@v3
-        with:
-          branch: "auto-pr-branch"
-          base: main
-          title: "demo for auto pr"
-          committer: ${{ secrets.GIT_COMMIT_AUTHOR_NAME  }} <${{ secrets.GIT_COMMIT_AUTHOR_EMAIL  }}>
-          author: ${{ secrets.GIT_COMMIT_AUTHOR_NAME }} <${{ secrets.GIT_COMMIT_AUTHOR_EMAIL  }}>
-          body:
-            This is to show automatic PR creation
-          token: ${{ secrets.TOKEN}}
-          delete-branch: false
+      - name: Get Latest PR Numbers
+        id: get_pr_numbers
+        run: |
+          OWNER="shivamnaik6574"
+          REPO="mypr-repo"
+          PR_NUMBERS=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+            "https://github.com/$OWNER/$REPO/commits/main/" | \
+            jq -r '.[].number' | head -n 100)
+          echo "::set-output name=pr_numbers::$PR_NUMBERS"
+
+      - name: Create PRs for Users' Commit IDs
+        run: |
+          PR_NUMBERS="${{ steps.get_pr_numbers.outputs.pr_numbers }}"
+          USERS=("uparit" "shivamnaik6574")
+
+          for USER in "${USERS[@]}"
+          do
+            for PR_NUMBER in $PR_NUMBERS
+            do
+              COMMIT_ID=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER" | \
+                jq -r '.head.sha')
+
+              gh pr create --base main --head "$COMMIT_ID" --title "Automated PR for $USER's Commit $COMMIT_ID" --body "This PR is automatically generated for $USER's commit $COMMIT_ID."
+            done
+          done

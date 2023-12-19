@@ -1,4 +1,3 @@
 #!/bin/bash
 
 echo "hello world from shivam"
-echo "my current location is kolhapur"

@@ -7,12 +7,6 @@ Pull Request IDs and Commit IDs Bundle:
 6281c5c
 7dab59b
 97a2b3d
-Bundle:
-Commit
-IDs
-Pull
-Request
-and
 b3e9a3c
 c22e8d7
 d3bfae5
